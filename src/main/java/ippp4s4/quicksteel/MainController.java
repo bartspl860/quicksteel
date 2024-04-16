@@ -6,6 +6,7 @@ import ippp4s4.quicksteel.model.LegendItem;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -37,6 +38,9 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class MainController implements Initializable {
     @FXML
@@ -238,6 +242,116 @@ public class MainController implements Initializable {
         }
         else{
             timeAxis.setLabel("Czas [s]");
+        }
+    }
+    public void saveAsExcel(){
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Dane wykresu");
+
+        ObservableList<Series<Double, Double>> chartData = chart.getData();
+
+        //cleanup
+        List<String> seriesToRemove = Arrays.asList("0.2", "0.8");
+        chartData.removeIf(series -> seriesToRemove.contains(series.getName()));
+
+        // Make row with x-axis values
+        Row headerRow = sheet.createRow(0);
+        headerRow.createCell(0).setCellValue(chart.getXAxis().getLabel());
+        int rowNum = 1;
+        for (Data<Double, Double> data : chartData.get(0).getData()) {
+            Row row = sheet.getRow(rowNum);
+            if (row == null) {
+                row = sheet.createRow(rowNum);
+            }
+            row.createCell(0).setCellValue(data.getXValue());
+            rowNum++;
+        }
+
+        // Make rows with y-axis values
+        int colNum = 1;
+        for (Series<Double, Double> series : chartData) {
+            headerRow.createCell(colNum).setCellValue(series.getName());
+            rowNum = 1;
+            for (Data<Double, Double> data : series.getData()) {
+                Row row = sheet.getRow(rowNum);
+                if (row == null) {
+                    row = sheet.createRow(rowNum);
+                }
+                row.createCell(colNum).setCellValue(data.getYValue());
+                rowNum++;
+            }
+            colNum++;
+        }
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Zapisz jako arkusz kalkulacyjny");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Arkusz kalkulacyjny", "*.xlsx"));
+        fileChooser.setInitialFileName("Wylew.xlsx");
+
+        File file = fileChooser.showSaveDialog(new Stage());
+
+        if (file != null) {
+            try (FileOutputStream fileOut = new FileOutputStream(file)) {
+                workbook.write(fileOut);
+                System.out.println("Pilk Excela utworzony!");
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.out.println("Error :)");
+            } finally {
+                try {
+                    workbook.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+
+    public void saveAsCSV() {
+        char rowDelimiter = ';';
+        ObservableList<Series<Double, Double>> chartData = chart.getData();
+
+        //cleanup
+        List<String> seriesToRemove = Arrays.asList("0.2", "0.8");
+        chartData.removeIf(series -> seriesToRemove.contains(series.getName()));
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Zapisz jako CSV");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV", "*.csv"));
+        fileChooser.setInitialFileName("Wylew.csv");
+
+        File file = fileChooser.showSaveDialog(new Stage());
+
+        if (file != null) {
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+                // Make header row with series names
+                writer.write(chartData.get(0).getName() + rowDelimiter); // x-axis name
+                for (Series<Double, Double> series : chartData) {
+                    writer.write(series.getName() + rowDelimiter); // y-axis names
+                }
+                writer.newLine();
+
+                // Make rows with x-axis and y-axis values
+                int maxDataPoints = chartData.stream().mapToInt(series -> series.getData().size()).max().orElse(0);
+                for (int i = 0; i < maxDataPoints; i++) {
+                    // x-axis values
+                    Data<Double, Double> xData = chartData.get(0).getData().get(i);
+                    writer.write(xData.getXValue() + Character.toString(rowDelimiter));
+
+                    // y-axis values
+                    for (Series<Double, Double> series : chartData) {
+                        Data<Double, Double> yData = series.getData().get(i);
+                        writer.write(yData.getYValue() + Character.toString(rowDelimiter));
+                    }
+                    writer.newLine();
+                }
+
+                System.out.println("Pilk CSV utworzony!");
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.out.println("Error :)");
+            }
         }
     }
 
