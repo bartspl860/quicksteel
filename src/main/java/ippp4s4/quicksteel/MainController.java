@@ -244,6 +244,7 @@ public class MainController implements Initializable {
             timeAxis.setLabel("Czas [s]");
         }
     }
+
     public void saveAsExcel(){
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("Dane wykresu");
@@ -480,5 +481,13 @@ public class MainController implements Initializable {
             // No dot found, use the original input
             return str;
         }
+    }
+
+    public void showAuthors(){
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Oprogramowanie Quicksteel wersja 24.04");
+        alert.setHeaderText("Autorzy oprogramowania");
+        alert.setContentText("Bartłomiej Spleśniały \nMichał Motyka \nKonrad Kobryń \nPaweł Szot");
+        alert.showAndWait();
     }
 }

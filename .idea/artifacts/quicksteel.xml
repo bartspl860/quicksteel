@@ -1,0 +1,29 @@
+<component name="ArtifactManager">
+  <artifact type="javafx" name="quicksteel">
+    <output-path>$PROJECT_DIR$/out/artifacts/quicksteel</output-path>
+    <properties id="javafx-properties">
+      <options>
+        <option name="appClass" value="ippp4s4.quicksteel.App" />
+        <option name="description" value="" />
+        <option name="height" value="768" />
+        <option name="htmlPlaceholderId" value="" />
+        <option name="icons">
+          <JavaFxApplicationIcons>
+            <option name="linuxIcon" value="$PROJECT_DIR$/src/main/resources/ippp4s4/quicksteel/icons/qs-icon.png" />
+            <option name="macIcon" value="$PROJECT_DIR$/src/main/resources/ippp4s4/quicksteel/icons/qs-icon.icns" />
+            <option name="windowsIcon" value="$PROJECT_DIR$/src/main/resources/ippp4s4/quicksteel/icons/qs-icon.ico" />
+          </JavaFxApplicationIcons>
+        </option>
+        <option name="title" value="Quicksteel" />
+        <option name="vendor" value="Bartłomiej Spleśniały" />
+        <option name="version" value="24.04" />
+        <option name="width" value="1280" />
+      </options>
+    </properties>
+    <root id="root">
+      <element id="archive" name="quicksteel.jar">
+        <element id="module-output" name="quicksteel" />
+      </element>
+    </root>
+  </artifact>
+</component>
