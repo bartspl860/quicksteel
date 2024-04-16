@@ -19,7 +19,7 @@ public class App extends Application {
         Scene mainwindow = new Scene(fxmlLoader.load(), 1280, 768);
         stage.setTitle("Quicksteel 24.04");
         stage.setScene(mainwindow);
-        stage.getIcons().add(new Image("file:src/main/resources/ippp4s4/quicksteel/icons/qs-icon.png"));
+        stage.getIcons().add(new Image(App.class.getResourceAsStream("/qs-icon.png")));
         stage.show();
     }
     public static void main(String[] args) {
