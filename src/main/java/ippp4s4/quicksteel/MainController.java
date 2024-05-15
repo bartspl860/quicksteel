@@ -34,7 +34,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class MainController implements Initializable {
@@ -296,9 +295,9 @@ public class MainController implements Initializable {
         if (file != null) {
             try (FileOutputStream fileOut = new FileOutputStream(file)) {
                 workbook.write(fileOut);
-                System.out.println("Pilk Excela utworzony!");
             } catch (IOException e) {
                 e.printStackTrace();
+                //TODO obsłużyć za pomocą showError()
                 System.out.println("Error :)");
             } finally {
                 try {
@@ -378,6 +377,7 @@ public class MainController implements Initializable {
             }
         }
     }
+
     private void createHorizontalHelpSeries(double start, double end, double y, String name){
         Series<Double, Double> series = new Series<>();
         var point = new Data<Double, Double>(start, y);
