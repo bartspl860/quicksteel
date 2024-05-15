@@ -2,7 +2,10 @@ package ippp4s4.quicksteel.model;
 
 import javafx.scene.control.CheckBox;
 import javafx.scene.layout.HBox;
+import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
+
+import java.util.Arrays;
 
 public class Legend extends HBox {
 
@@ -14,7 +17,7 @@ public class Legend extends HBox {
     public void addLegendItem(LegendItem item) {
         CheckBox checkBox = new CheckBox(item.getSeriesName());
         checkBox.setSelected(item.isVisible());
-        checkBox.setTextFill((Paint) item.getSeriesColor());
+        checkBox.setTextFill(item.getSeriesColor());
 
         checkBox.setOnAction(event -> {
             item.setVisible(checkBox.isSelected());
@@ -23,6 +26,22 @@ public class Legend extends HBox {
 
         });
 
+        getChildren().add(checkBox);
+    }
+
+    public void addChainedLegendItems(String chainName, LegendItem... items) {
+        CheckBox checkBox = new CheckBox(chainName);
+        checkBox.setSelected(Arrays.stream(items).findFirst().get().isVisible());
+        checkBox.setTextFill(Arrays.stream(items).findFirst().get().getSeriesColor());
+
+        Arrays.stream(items).toList().forEach(item ->
+                item.setVisible(checkBox.isSelected())
+        );
+        checkBox.setOnAction(event -> {
+            Arrays.stream(items).toList().forEach(item ->
+                    item.setVisible(checkBox.isSelected())
+            );
+        });
         getChildren().add(checkBox);
     }
 

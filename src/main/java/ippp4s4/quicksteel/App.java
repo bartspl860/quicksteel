@@ -17,7 +17,7 @@ public class App extends Application {
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("hello-view.fxml"));
         Scene mainwindow = new Scene(fxmlLoader.load(), 1280, 768);
-        stage.setTitle("Quicksteel 24.04");
+        stage.setTitle("Quicksteel 24.05");
         stage.setScene(mainwindow);
         stage.getIcons().add(new Image(App.class.getResourceAsStream("/qs-icon.png")));
         stage.show();

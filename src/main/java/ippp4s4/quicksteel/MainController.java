@@ -10,7 +10,6 @@ import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.chart.LineChart;
@@ -19,14 +18,10 @@ import javafx.scene.chart.XYChart.Data;
 import javafx.scene.chart.XYChart.Series;
 import javafx.scene.control.*;
 import javafx.scene.image.WritableImage;
-import javafx.scene.input.MouseButton;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
-import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -45,6 +40,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 public class MainController implements Initializable {
     @FXML
     public CheckBox dTime;
+    @FXML
+    public CheckBox maxVal;
     @FXML
     public VBox dTimeMenu;
     @FXML
@@ -144,10 +141,11 @@ public class MainController implements Initializable {
                 }
             }
             myReader.close();
-        } catch (NumberFormatException e) {
-            System.out.println("Data format error");
         } catch (FileNotFoundException e) {
-            System.out.println("An error occurred.");
+            showError("Nie znaleziono pliku", "Plik który podałeś został usunięty bądź przeniesiony. Upewnij się, że plik jest we właściwym miejscu.");
+        } catch(Exception e){
+            showError("Błędny format danych", "Nastąpiła próba odczytania pustych danych. Upewnij sie, że dane są w poprawnym formacie.");
+            return;
         }
         CalculateDimensionlessConcetration();
         plotData();
@@ -156,22 +154,21 @@ public class MainController implements Initializable {
     private void CalculateDimensionlessConcetration() {
         int numThreads = data.size();
         ExecutorService executorService = Executors.newFixedThreadPool(numThreads);
-
         // Process each inner array asynchronously
         for (ArrayList<Double> innerArray : data) {
-            executorService.submit(() -> processInnerArray(innerArray));
+            executorService.submit(() -> processInnerArray(innerArray, maxVal.isSelected()));
         }
-
         // Shutdown the executor service after all tasks are submitted
         executorService.shutdown();
     }
 
-    private void processInnerArray(ArrayList<Double> dataArray) {
+    private void processInnerArray(ArrayList<Double> dataArray, Boolean byMaxValue) {
         var c0 = dataArray.get(0);
-        var cinf = dataArray.get(dataArray.size() - 1);
+        var cInf = dataArray.get(dataArray.size() - 1);
+        var cMax = dataArray.stream().max(Double::compare).get();
         for (var i = 0; i < dataArray.size(); i++) {
             var ct = dataArray.get(i);
-            dataArray.set(i, (ct - c0) / (cinf - c0));
+            dataArray.set(i, (ct - c0) / (byMaxValue ? cMax : cInf - c0));
         }
     }
 
@@ -191,9 +188,12 @@ public class MainController implements Initializable {
             });
             allSeries.add(series);
         }
-        conductivityAxis.setLabel("Stężenie bezwymiarowe");
 
-        var processTime = Math.floor(time.get().doubleValue() + timeAxis.getTickUnit());
+        conductivityAxis.setLabel("Stężenie bezwymiarowe [-]");
+
+        var firstSeries = allSeries.stream().findFirst().orElseThrow();
+        var processTime = firstSeries.getData().get(firstSeries.getData().size() - 1).getXValue();
+
         if(dTime.isSelected()){
             var dimentionlessTimeStep = 0.3d / Double.parseDouble(avgTime.getText());
             for(var doubleSeries : allSeries){
@@ -203,16 +203,11 @@ public class MainController implements Initializable {
                     increment += dimentionlessTimeStep;
                 }
             }
-            timeAxis.setUpperBound(dimentionlessTimeStep * allSeries.get(0).getData().size());
-            timeAxis.setTickUnit(0.2);
-        }
-        else {
-            timeAxis.setUpperBound(processTime);
-            timeAxis.setTickUnit(5d);
         }
 
         createHorizontalHelpSeries(0d, processTime, 0.8d, "0.8");
         createHorizontalHelpSeries(0d, processTime, 0.2d, "0.2");
+
         Set<Node> hrNodes = chart.lookupAll(".series0");
         for (Node n : hrNodes) {
             n.setStyle("-fx-stroke: darkred;");
@@ -223,10 +218,12 @@ public class MainController implements Initializable {
         }
 
         legend.clear();
+
         for(var i = 0; i < allSeries.size(); i++) {
             chart.getData().add(allSeries.get(i));
             legend.addLegendItem(new LegendItem(chart.getData().get(chart.getData().size() - 1), chartColors.get(i), true));
             chart.applyCss();
+
             Set<Node> nodes = chart.lookupAll(".series" + (i + 2));
             String rgb = String.format("%d, %d, %d",
                     (int) (chartColors.get(i).getRed() * 255),
@@ -237,8 +234,13 @@ public class MainController implements Initializable {
             }
         }
 
+        legend.addChainedLegendItems("Osie pomocnicze",
+                new LegendItem(chart.getData().get(0), Color.DARKRED, false),
+                new LegendItem(chart.getData().get(1), Color.DARKRED, false)
+        );
+
         if(dTime.isSelected()){
-            timeAxis.setLabel("Czas bezwymiarowy");
+            timeAxis.setLabel("Czas bezwymiarowy [-]");
         }
         else{
             timeAxis.setLabel("Czas [s]");
@@ -488,6 +490,14 @@ public class MainController implements Initializable {
         alert.setTitle("Oprogramowanie Quicksteel wersja 24.04");
         alert.setHeaderText("Autorzy oprogramowania");
         alert.setContentText("Bartłomiej Spleśniały \nMichał Motyka \nKonrad Kobryń \nPaweł Szot");
+        alert.showAndWait();
+    }
+
+    public void showError(String title, String content){
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Błąd");
+        alert.setHeaderText(title);
+        alert.setContentText(content);
         alert.showAndWait();
     }
 }

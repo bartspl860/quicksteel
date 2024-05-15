@@ -60,6 +60,16 @@
                   <Insets top="10.0" />
                </VBox.margin>
             </HBox>
+            <HBox prefHeight="32.0" prefWidth="200.0">
+               <children>
+                  <Label text="Licz według max stężenia" />
+                  <CheckBox fx:id="maxVal" alignment="CENTER_RIGHT" mnemonicParsing="false" onAction="#hideDTimeMenu" prefHeight="17.0" prefWidth="26.0">
+                     <padding>
+                        <Insets left="5.0" />
+                     </padding>
+                  </CheckBox>
+               </children>
+            </HBox>
             <VBox fx:id="dTimeMenu" disable="true" prefHeight="200.0" prefWidth="245.0">
                <children>
                   <Label text="Objętość płynu V [m^3]" />
@@ -83,12 +93,12 @@
    <center>
       <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
          <children>
-            <LineChart fx:id="chart" createSymbols="false" legendVisible="false" prefHeight="687.0" prefWidth="1003.0">
+            <LineChart fx:id="chart" alternativeColumnFillVisible="true" createSymbols="false" legendVisible="false" prefHeight="687.0" prefWidth="1003.0">
               <xAxis>
-                <NumberAxis fx:id="timeAxis" autoRanging="false" side="BOTTOM" tickLabelGap="5.0" />
+                <NumberAxis fx:id="timeAxis" side="BOTTOM" tickLabelGap="5.0" upperBound="95.0" />
               </xAxis>
               <yAxis>
-                <NumberAxis fx:id="conductivityAxis" autoRanging="false" minorTickCount="10" minorTickLength="1.0" minorTickVisible="false" side="LEFT" tickUnit="0.1" upperBound="1.0" />
+                <NumberAxis fx:id="conductivityAxis" minorTickCount="10" minorTickLength="1.0" minorTickVisible="false" side="LEFT" tickUnit="0.1" upperBound="0.95" />
               </yAxis>
             </LineChart>
              <Legend fx:id="legend" alignment="CENTER" />
