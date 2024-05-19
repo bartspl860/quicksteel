@@ -167,7 +167,7 @@ public class MainController implements Initializable {
         var cMax = dataArray.stream().max(Double::compare).get();
         for (var i = 0; i < dataArray.size(); i++) {
             var ct = dataArray.get(i);
-            dataArray.set(i, (ct - c0) / (byMaxValue ? cMax : cInf - c0));
+            dataArray.set(i, (ct - c0) / ((byMaxValue ? cMax : cInf) - c0));
         }
     }
 
