@@ -487,7 +487,7 @@ public class MainController implements Initializable {
 
     public void showAuthors(){
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Oprogramowanie Quicksteel wersja 24.04");
+        alert.setTitle("Oprogramowanie Quicksteel wersja 24.05");
         alert.setHeaderText("Autorzy oprogramowania");
         alert.setContentText("Bartłomiej Spleśniały \nMichał Motyka \nKonrad Kobryń \nPaweł Szot");
         alert.showAndWait();
