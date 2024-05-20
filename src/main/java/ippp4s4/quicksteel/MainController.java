@@ -190,9 +190,6 @@ public class MainController implements Initializable {
 
         conductivityAxis.setLabel("Stężenie bezwymiarowe [-]");
 
-        var firstSeries = allSeries.stream().findFirst().orElseThrow();
-        var processTime = firstSeries.getData().get(firstSeries.getData().size() - 1).getXValue();
-
         if(dTime.isSelected()){
             var dimentionlessTimeStep = 0.3d / Double.parseDouble(avgTime.getText());
             for(var doubleSeries : allSeries){
@@ -203,6 +200,9 @@ public class MainController implements Initializable {
                 }
             }
         }
+
+        var firstSeries = allSeries.stream().findFirst().orElseThrow();
+        var processTime = firstSeries.getData().get(firstSeries.getData().size() - 1).getXValue();
 
         createHorizontalHelpSeries(0d, processTime, 0.8d, "0.8");
         createHorizontalHelpSeries(0d, processTime, 0.2d, "0.2");
