@@ -81,6 +81,10 @@
                </children>
             </VBox>
             <Button fx:id="generateBtn" disable="true" mnemonicParsing="false" onAction="#filterData" prefHeight="25.0" prefWidth="245.0" text="Generuj" />
+            <BorderPane prefWidth="250.0">
+               <bottom>
+                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="250.0" fx:id="fileLabel" text="Brak Pliku" textAlignment="CENTER" BorderPane.alignment="BOTTOM_CENTER" />
+               </bottom></BorderPane>
          </children>
          <BorderPane.margin>
             <Insets />

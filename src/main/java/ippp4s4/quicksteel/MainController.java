@@ -62,6 +62,8 @@ public class MainController implements Initializable {
     public TextField avgTime;
     @FXML
     public Legend legend;
+    @FXML
+    public Label fileLabel;
 
     private List<Color> chartColors = Arrays.asList(Color.PURPLE, Color.GREEN, Color.BLUE, Color.ORANGE, Color.RED, Color.PINK);
 
@@ -77,12 +79,17 @@ public class MainController implements Initializable {
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Plik z pomiarami (*.csv)", "*.csv");
         chooser.getExtensionFilters().add(extFilter);
         uploadedFile = chooser.showOpenDialog(new Stage());
+        updateFileLabelText(uploadedFile.getName());
 
         ButtonBlockSet();
     }
 
     public void ButtonBlockSet(){
         this.generateBtn.setDisable(!conditionsForBtnUnlockMet());
+    }
+
+    private void updateFileLabelText(String filename){
+        fileLabel.setText("Plik: " + filename);
     }
 
     private double calculateTheoreticalAvgTime(double v, double q){
