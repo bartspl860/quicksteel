@@ -143,7 +143,8 @@ public class MainController implements Initializable {
         } catch (FileNotFoundException e) {
             showError("Nie znaleziono pliku", "Plik który podałeś został usunięty bądź przeniesiony. Upewnij się, że plik jest we właściwym miejscu.");
         } catch(Exception e){
-            showError("Błędny format danych", "Nastąpiła próba odczytania pustych danych. Upewnij sie, że dane są w poprawnym formacie.");
+            showError("Błędny format danych", "Nastąpiła próba odczytania pustych/nienumerycznych kolumn w pliku. Upewnij sie, że dane są w poprawnym formacie.\n" +
+                    "1 kolumna z numerami pomiarów, 2 kolumna z czasem, 1-6 kolumn numerycznych");
             return;
         }
         CalculateDimensionlessConcetration();
