@@ -6,6 +6,7 @@ import ippp4s4.quicksteel.model.LegendItem;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
@@ -66,6 +67,8 @@ public class MainController implements Initializable {
 
     ArrayList<ArrayList<Double>> data = new ArrayList<>();
     File uploadedFile;
+    private List<Series<Double, Double>> visibleCharts = new ArrayList<>();
+
 
     public void openFile() {
         FileChooser chooser = new FileChooser();
@@ -174,6 +177,7 @@ public class MainController implements Initializable {
 
     private void plotData() {
         chart.getData().clear();
+        visibleCharts.clear();
         var allSeries = new ArrayList<Series<Double, Double>>();
         AtomicReference<BigDecimal> time = new AtomicReference<>(BigDecimal.ZERO);
         for (var vat = 0; vat < vatCount.getValue(); vat++) {
@@ -187,6 +191,7 @@ public class MainController implements Initializable {
                 series.getData().add(point);
             });
             allSeries.add(series);
+            visibleCharts.add(series);
         }
 
         conductivityAxis.setLabel("Stężenie bezwymiarowe [-]");
@@ -251,7 +256,8 @@ public class MainController implements Initializable {
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("Dane wykresu");
 
-        ObservableList<Series<Double, Double>> chartData = chart.getData();
+        ObservableList<Series<Double, Double>> chartData = FXCollections.observableArrayList(
+                visibleCharts.stream().filter(series -> legend.isSeriesVisible(series)).toList());
 
         //cleanup
         List<String> seriesToRemove = Arrays.asList("0.2", "0.8");
@@ -298,8 +304,7 @@ public class MainController implements Initializable {
                 workbook.write(fileOut);
             } catch (IOException e) {
                 e.printStackTrace();
-                //TODO obsłużyć za pomocą showError()
-                System.out.println("Error :)");
+                showError("Wystąpił błąd zapisu pliku","");
             } finally {
                 try {
                     workbook.close();
@@ -313,7 +318,8 @@ public class MainController implements Initializable {
 
     public void saveAsCSV() {
         char rowDelimiter = ';';
-        ObservableList<Series<Double, Double>> chartData = chart.getData();
+        ObservableList<Series<Double, Double>> chartData = FXCollections.observableArrayList(
+                visibleCharts.stream().filter(series -> legend.isSeriesVisible(series)).toList());
 
         //cleanup
         List<String> seriesToRemove = Arrays.asList("0.2", "0.8");

@@ -1,5 +1,6 @@
 package ippp4s4.quicksteel.model;
 
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.CheckBox;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
@@ -47,5 +48,11 @@ public class Legend extends HBox {
 
     public void clear() {
         getChildren().clear();
+    }
+    public boolean isSeriesVisible(XYChart.Series<Double, Double> series) {
+        return getChildren().stream()
+                .filter(node -> node instanceof CheckBox)
+                .map(node -> (CheckBox) node)
+                .anyMatch(checkBox -> checkBox.getText().equals(series.getName()) && checkBox.isSelected());
     }
 }
