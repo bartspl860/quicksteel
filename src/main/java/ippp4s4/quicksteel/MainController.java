@@ -311,7 +311,7 @@ public class MainController implements Initializable {
                 workbook.write(fileOut);
             } catch (IOException e) {
                 e.printStackTrace();
-                showError("Wystąpił błąd zapisu pliku","");
+                showError("Wystąpił błąd podczas próby zapisu pliku","Upewnij się że nie próbujesz zapisać wykresu do pliku który jest aktualnie otwarty");
             } finally {
                 try {
                     workbook.close();
@@ -325,10 +325,12 @@ public class MainController implements Initializable {
 
     public void saveAsCSV() {
         char rowDelimiter = ';';
+
+        // Filter visible chart data
         ObservableList<Series<Double, Double>> chartData = FXCollections.observableArrayList(
                 visibleCharts.stream().filter(series -> legend.isSeriesVisible(series)).toList());
 
-        //cleanup
+        // Cleanup
         List<String> seriesToRemove = Arrays.asList("0.2", "0.8");
         chartData.removeIf(series -> seriesToRemove.contains(series.getName()));
 
@@ -341,8 +343,8 @@ public class MainController implements Initializable {
 
         if (file != null) {
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
-                // Make header row with series names
-                writer.write(chartData.get(0).getName() + rowDelimiter); // x-axis name
+                // Make header row with x-axis label and series names
+                writer.write("Czas [s]" + rowDelimiter);
                 for (Series<Double, Double> series : chartData) {
                     writer.write(series.getName() + rowDelimiter); // y-axis names
                 }
@@ -352,25 +354,31 @@ public class MainController implements Initializable {
                 int maxDataPoints = chartData.stream().mapToInt(series -> series.getData().size()).max().orElse(0);
                 for (int i = 0; i < maxDataPoints; i++) {
                     // x-axis values
-                    Data<Double, Double> xData = chartData.get(0).getData().get(i);
-                    writer.write(xData.getXValue() + Character.toString(rowDelimiter));
+                    if (i < chartData.get(0).getData().size()) {
+                        Data<Double, Double> xData = chartData.get(0).getData().get(i);
+                        writer.write(String.format(Locale.US, "%.1f", xData.getXValue()).replace('.', ',') + rowDelimiter);
+                    } else {
+                        writer.write(rowDelimiter);
+                    }
 
                     // y-axis values
                     for (Series<Double, Double> series : chartData) {
-                        Data<Double, Double> yData = series.getData().get(i);
-                        writer.write(yData.getYValue() + Character.toString(rowDelimiter));
+                        if (i < series.getData().size()) {
+                            Data<Double, Double> yData = series.getData().get(i);
+                            writer.write(String.format(Locale.US, "%.6f", yData.getYValue()).replace('.', ',') + rowDelimiter);
+                        } else {
+                            writer.write(rowDelimiter);
+                        }
                     }
                     writer.newLine();
                 }
 
-                System.out.println("Pilk CSV utworzony!");
             } catch (IOException e) {
                 e.printStackTrace();
-                System.out.println("Error :)");
+                showError("Wystąpił błąd podczas próby zapisu pliku", "Upewnij się że nie próbujesz zapisać wykresu do pliku który jest aktualnie otwarty");
             }
         }
     }
-
     public void saveAsPng() {
         FileChooser fileChooser = new FileChooser();
 
